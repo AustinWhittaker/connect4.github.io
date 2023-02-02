@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            width: 100%;
+        }
+
+        .cell {
+            border: 1px solid white;
+            height: 50px;
+            width: 50px;
+            background-color: black;
+        }
+        button {
+            display: block;
+            margin: 20px auto; 
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Rows and cells will be created dynamically -->
+    </div>
+    <script>
+        // Select the container
+        const container = document.querySelector(".container");
+
+        // Create the 2D array for game board
+        let board = [];
+        for (let i = 0; i < 6; i++) {
+            board[i] = [];
+            for (let j = 0; j < 7; j++) {
+                board[i][j] = 0;
+            }
+        }
+
+        // Variables to keep track of current player and winner
+        let currentPlayer = 1;
+        let winner = 0;
+
+        // Function to render the board
+        function renderBoard() {
+            // Clear the existing board
+            container.innerHTML = "";
+
+            // Create new rows and cells
+            for (let i = 0; i < 6; i++) {
+                let row = document.createElement("div");
+                row.classList.add("row");
+                for (let j = 0; j < 7; j++) {
+                    let cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.setAttribute("data-row", i);
+                    cell.setAttribute("data-col", j);
+                    cell.addEventListener("click", handleCellClick);
+                    row.appendChild(cell);
+                }
+                container.appendChild(row);
+            }
+
+            // Fill the cells with the current player's color
+            let cells = document.querySelectorAll(".cell");
+            for (let i = 0; i < cells.length; i++) {
+                let row = cells[i].getAttribute("data-row");
+                let col = cells[i].getAttribute("data-col");
+                if (board[row][col] === 1) {
+                    cells[i].style.backgroundColor = "red";
+                } else if (board[row][col] === 2) {
+                    cells[i].style.backgroundColor = "yellow";
+                }
+            }
+        }
+
+        // Function to handle cell click
+        function handleCellClick() {
+            // Get the row and column of the clicked cell
+            let row = this.getAttribute("data-row");
+            let col = this.getAttribute("data-col");
+
+            // Check if the bottom most row in the column is empty
+            for (let i = 5; i >= 0; i--) {
+                if (board[i][col] === 0) {
+                    row = i;
+                    break;
+                }
+            }
+
+            // Place the disc in the board
+            board[row][col] = currentPlayer;
+            if (checkWinner(row, col)) {
+                winner = currentPlayer;
+                if(winner ==1){
+                    alert('Player 1 wins!')
+                }
+                else{
+                    alert('Player 2 wins!')
+                }
+                ;
+            } else {
+                // Switch to the other player
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+            }
+            // Render the board again
+            renderBoard();
+        }
+
+        // Function to check if there is a winner
+        function checkWinner(row, col) {
+            let player = board[row][col];
+
+            // Check horizontal cells
+            let count = 0;
+            for (let j = col; j < col + 4 && j < 7; j++) {
+                if (board[row][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            for (let j = col - 1; j > col - 4 && j >= 0; j--) {
+                if (board[row][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count >= 4) {
+                return true;
+            }
+
+            // Check vertical cells
+            count = 0;
+            for (let i = row; i < row + 4 && i < 6; i++) {
+                if (board[i][col] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count >= 4) {
+                return true;
+            }
+
+            // Check top-left to bottom-right diagonal cells
+            count = 0;
+            for (let i = row, j = col; i < row + 4 && i < 6 && j < col + 4 && j < 7; i++, j++) {
+                if (board[i][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            for (let i = row - 1, j = col - 1; i > row - 4 && i >= 0 && j > col - 4 && j >= 0; i--, j--) {
+                if (board[i][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count >= 4) {
+                return true;
+            }
+
+            // Check top-right to bottom-left diagonal cells
+            count = 0;
+            for (let i = row, j = col; i < row + 4 && i < 6 && j > col - 4 && j >= 0; i++, j--) {
+                if (board[i][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            for (let i = row - 1, j = col + 1; i > row - 4 && i >= 0 && j < col + 4 && j < 7; i--, j++) {
+                if (board[i][j] === player) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count >= 4) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Initial render
+        renderBoard();
+
+    </script>
+    <div style="text-align:center;">
+      <button onclick="location.reload();">Play Again</button>
+    </div>
+
+</body>
+
+</html>
